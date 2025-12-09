@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
     res.status(200).send('Welcome to CreatiVerse API')
 })
 
-app.use
+app.use("/api/v1/auth", require("./modules/auth/auth.routes"));
 
 
 // 404 
