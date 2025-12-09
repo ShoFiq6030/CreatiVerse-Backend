@@ -30,7 +30,14 @@ const loginUser = async (req, res) => {
         }
         // login service
         const result = await loginService({ email, password });
-
+        // Send refresh token in httpOnly cookie
+        res.cookie("refreshToken", result.refreshToken, {
+            httpOnly: true,
+            secure: true,     // true for HTTPS
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        delete result.refreshToken;
         res.status(200).json({
             success: true,
             message: "User logged in successfully",

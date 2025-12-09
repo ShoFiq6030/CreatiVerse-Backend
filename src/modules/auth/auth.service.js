@@ -2,6 +2,7 @@ const User = require("../users/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("../../config/index")
+const { generateAccessToken, generateRefreshToken } = require("../../utils/jwtToken");
 
 
 
@@ -39,8 +40,8 @@ const loginService = async ({ email, password }) => {
     if (!user) {
         throw new Error("Invalid email or password");
     }
-    console.log(user);
-    console.log(password, user.password);
+    // console.log(user);
+    // console.log(password, user.password);
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -48,13 +49,17 @@ const loginService = async ({ email, password }) => {
     }
     const userObj = user.toObject();
     delete userObj.password;
-    // Generate JWT token
-    const token = jwt.sign(
-        { id: user._id, email: user.email, name: user.email, role: user.role },
-        config.jwtSecret,
-        { expiresIn: "1d" }
-    );
-    return { user: userObj, token };
+
+    // Generate JWT tokens
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    // Save refresh token in DB
+    user.refreshToken = refreshToken;
+    await user.save();
+
+
+    return { user: userObj, accessToken, refreshToken };
 }
 
 
