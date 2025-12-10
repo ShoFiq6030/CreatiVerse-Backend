@@ -26,7 +26,7 @@ const createContestService = async (user, payload) => {
 
 }
 
-const getContestService = async (user) => {
+const getContestsService = async (user) => {
 
     let query
     if (user.role === "admin") {
@@ -45,7 +45,40 @@ const getContestService = async (user) => {
 
 }
 
+const getContestService = async (contestId) => {
+
+    const contest = await Contest.findById(contestId)
+
+    return contest
+
+}
+
+const updateContestService = async (contestId, payload, user) => {
+    const contest = await Contest.findById(contestId)
+    if (!contest) {
+        throw new Error("contest not found")
+    }
+    if (!user.role === "admin") {
+        if (contest.status === "approve") {
+            throw new Error("contest can't be update when approve")
+        }
+    }
+
+
+    const result = await Contest.findByIdAndUpdate(
+        contestId,
+        payload,
+        { new: true }
+    );
+
+    return result
+
+
+}
+
 module.exports = {
     createContestService,
-    getContestService
+    getContestsService,
+    getContestService,
+    updateContestService
 }

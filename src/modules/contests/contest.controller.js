@@ -1,4 +1,4 @@
-const { createContestService, getContestService } = require("./contest.service")
+const { createContestService, getContestsService, getContestService, updateContestService } = require("./contest.service")
 
 
 const createContest = async (req, res) => {
@@ -27,7 +27,7 @@ const createContest = async (req, res) => {
 
 }
 
-const getContest = async (req, res) => {
+const getContests = async (req, res) => {
 
     try {
 
@@ -39,7 +39,7 @@ const getContest = async (req, res) => {
             }
         }
 
-        const result = await getContestService(user)
+        const result = await getContestsService(user)
 
         res.status(200).json({
             success: true,
@@ -60,8 +60,63 @@ const getContest = async (req, res) => {
 
 }
 
+const getContestById = async (req, res) => {
+    try {
+        const { contestId } = req.params
+        const result = await getContestService(contestId)
+
+        if (result) {
+            res.status(200).json({
+                success: true,
+                massage: "Data fetch successfully",
+                data: result
+
+            })
+        } else {
+            res.status(400).json({
+                success: false,
+                massage: "Contest not found",
+
+            })
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            massage: error.message
+        })
+    }
+
+}
+
+const updateContestById = async (req, res) => {
+    const { contestId } = req.params
+    const payload = req.body
+    const user= req.user
+
+    const result = await updateContestService(contestId, payload,user)
+    console.log(result);
+
+    if (!result) {
+        res.status(400).json({
+            success: true,
+            message: "contest not found"
+        })
+    }
+
+    res.status(200).json({
+        success: true,
+        message: "contest update successfully",
+        data: result
+    })
+
+}
+
 module.exports = {
     createContest,
-    getContest
+    getContests,
+    getContestById,
+    updateContestById
 }
 
