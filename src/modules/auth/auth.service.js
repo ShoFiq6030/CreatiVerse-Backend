@@ -3,6 +3,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("../../config/index")
 const { generateAccessToken, generateRefreshToken } = require("../../utils/jwtToken");
+const { sendEmail } = require("../../utils/nodeMailer");
+const path = require("path");
+const fs = require("fs");
 
 
 
@@ -18,6 +21,25 @@ const registerService = async ({ ...payload }) => {
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    //email verify token 6 digits
+    const emailVerifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(emailVerifyCode);
+
+    // Load the HTML file
+    const filePath = path.join(process.cwd(), "src/emails", "verification.html");
+    let html = fs.readFileSync(filePath, "utf8");
+
+    // Replace placeholder
+    html = html.replace("{{CODE}}", emailVerifyCode);
+
+    // send verification email
+    sendEmail({
+        to: email,
+        subject: "Verify your email",
+        html
+    })
+
+
     // console.log("Register Service Payload:", payload);
     // Create user
     const user = await User.create({
@@ -26,10 +48,12 @@ const registerService = async ({ ...payload }) => {
         password: hashedPassword,
         // password,
         role: role || "user",
-        profileImage
+        profileImage,
+        emailVerifyCode
     });
     const userObj = user.toObject();
     delete userObj.password;
+    delete userObj.emailVerifyCode;
 
     return userObj;
 }

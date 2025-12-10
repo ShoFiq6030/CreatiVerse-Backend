@@ -11,8 +11,6 @@ router.post("/login", loginUser);
 //log out
 router.post("/logout", auth(), logoutUser);
 
-
-
 // // Email verification route
 // router.get("/verify-email", verifyEmail);
 

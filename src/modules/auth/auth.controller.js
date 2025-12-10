@@ -3,12 +3,16 @@ const { registerService, loginService } = require("./auth.service");
 
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password, profileImage } = req.body;
+        const { name, email, password, profileImage,role } = req.body;
         if (!name || !email || !password) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
+        if(role==="admin"){
+            return res.status(400).json({ success: false, message: "Cannot register as admin" });
+        }
+        
         // register service
-        const result = await registerService({ name, email, password, profileImage });
+        const result = await registerService({ name, email, password, profileImage,role });
         if (result.error) {
             return res.status(400).json({ success: false, message: result.error });
         }
@@ -50,15 +54,35 @@ const loginUser = async (req, res) => {
     }
 }
 
- const logoutUser = async (req, res) => {
-  res.clearCookie("refreshToken");
+const logoutUser = async (req, res) => {
+    res.clearCookie("refreshToken");
 
-  await User.findByIdAndUpdate(req.user.id, {
-    refreshToken: null,
-  });
+    await User.findByIdAndUpdate(req.user.id, {
+        refreshToken: null,
+    });
 
-  res.json({ message: "Logged out successfully" });
+    res.json({ message: "Logged out successfully" });
 };
+
+const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.query;
+        if (!token) {
+            return res.status(400).json({ success: false, message: "Verification token is required" });
+        }
+        const user = await User.findOne({ emailVerificationToken: token });
+        if (!user) {
+            return res.status(400).json({ success: false, message: "Invalid or expired verification token" });
+        }
+        user.isEmailVerified = true;
+        user.emailVerificationToken = undefined;
+        await user.save();
+        res.status(200).json({ success: true, message: "Email verified successfully" });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
 
 module.exports = {
     registerUser,
