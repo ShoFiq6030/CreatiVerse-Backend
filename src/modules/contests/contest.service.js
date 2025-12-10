@@ -26,6 +26,26 @@ const createContestService = async (user, payload) => {
 
 }
 
+const getContestService = async (user) => {
+
+    let query
+    if (user.role === "admin") {
+        query = {}
+    }
+    else if (user.role === "creator") {
+        query = { creator: user.id }
+    } else {
+        query = { status: "approve" }
+    }
+
+
+    const result = await Contest.find(query)
+
+    return result
+
+}
+
 module.exports = {
-    createContestService
+    createContestService,
+    getContestService
 }

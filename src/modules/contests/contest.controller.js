@@ -1,4 +1,4 @@
-const { createContestService } = require("./contest.service")
+const { createContestService, getContestService } = require("./contest.service")
 
 
 const createContest = async (req, res) => {
@@ -27,7 +27,41 @@ const createContest = async (req, res) => {
 
 }
 
+const getContest = async (req, res) => {
+
+    try {
+
+        let user = req.user
+
+        if (!user) {
+            user = {
+                role: "user"
+            }
+        }
+
+        const result = await getContestService(user)
+
+        res.status(200).json({
+            success: true,
+            massage: "contest fetch successfully",
+            data: result
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            massage: error.massage
+        })
+
+    }
+
+
+
+}
+
 module.exports = {
-    createContest
+    createContest,
+    getContest
 }
 

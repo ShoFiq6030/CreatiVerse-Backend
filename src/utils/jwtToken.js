@@ -5,7 +5,7 @@ const generateAccessToken = (user) => {
     return jwt.sign(
         { id: user._id, role: user.role, email: user.email, name: user.name },
         config.jwtSecret,
-        { expiresIn: "15m" }
+        { expiresIn: "2d" }
     );
 };
 
