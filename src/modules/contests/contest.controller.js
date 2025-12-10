@@ -1,4 +1,4 @@
-const { createContestService, getContestsService, getContestService, updateContestService } = require("./contest.service")
+const { createContestService, getContestsService, getContestService, updateContestService, deleteContestService } = require("./contest.service")
 
 
 const createContest = async (req, res) => {
@@ -91,32 +91,80 @@ const getContestById = async (req, res) => {
 }
 
 const updateContestById = async (req, res) => {
-    const { contestId } = req.params
-    const payload = req.body
-    const user= req.user
 
-    const result = await updateContestService(contestId, payload,user)
-    console.log(result);
+    try {
+        const { contestId } = req.params
+        const payload = req.body
+        const user = req.user
 
-    if (!result) {
-        res.status(400).json({
+        const result = await updateContestService(contestId, payload, user)
+        console.log(result);
+
+        if (!result) {
+            res.status(400).json({
+                success: false,
+                message: "contest not found"
+            })
+        }
+
+        res.status(200).json({
             success: true,
-            message: "contest not found"
+            message: "contest update successfully",
+            data: result
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            massage: error.message
         })
     }
 
-    res.status(200).json({
-        success: true,
-        message: "contest update successfully",
-        data: result
-    })
 
 }
+
+const deleteContestById = async (req, res) => {
+
+    try {
+        const { contestId } = req.params
+
+        const user = req.user
+
+        const result = await deleteContestService(contestId, user)
+        // console.log(result);
+
+        if (!result) {
+            res.status(400).json({
+                success: false,
+                message: "contest not found"
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "contest delete successfully",
+            // data: result
+        })
+
+    } catch (error) {
+        console.log(error.message);
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            massage: error.message
+        })
+    }
+
+}
+   
+
+
 
 module.exports = {
     createContest,
     getContests,
     getContestById,
-    updateContestById
+    updateContestById,
+    deleteContestById
 }
 

@@ -58,7 +58,7 @@ const updateContestService = async (contestId, payload, user) => {
     if (!contest) {
         throw new Error("contest not found")
     }
-    if (!user.role === "admin") {
+    if (user.role !== "admin") {
         if (contest.status === "approve") {
             throw new Error("contest can't be update when approve")
         }
@@ -76,9 +76,30 @@ const updateContestService = async (contestId, payload, user) => {
 
 }
 
+const deleteContestService = async (contestId, user) => {
+    const contest = await Contest.findById(contestId)
+    console.log(user.role);
+    console.log(contest);
+
+
+    if (!contest) {
+        return
+    }
+    if (user.role !== "admin") {
+        if (contest.status === "approve") {
+            throw new Error("contest can't be delete when it's approve")
+        }
+    }
+    const result = Contest.findOneAndDelete(contestId)
+
+    return result
+
+}
+
 module.exports = {
     createContestService,
     getContestsService,
     getContestService,
-    updateContestService
+    updateContestService,
+    deleteContestService
 }
