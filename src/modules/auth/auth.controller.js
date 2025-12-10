@@ -1,3 +1,4 @@
+const User = require("../users/user.model");
 const { registerService, loginService } = require("./auth.service");
 
 const registerUser = async (req, res) => {
@@ -49,8 +50,18 @@ const loginUser = async (req, res) => {
     }
 }
 
+ const logoutUser = async (req, res) => {
+  res.clearCookie("refreshToken");
+
+  await User.findByIdAndUpdate(req.user.id, {
+    refreshToken: null,
+  });
+
+  res.json({ message: "Logged out successfully" });
+};
 
 module.exports = {
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 };
