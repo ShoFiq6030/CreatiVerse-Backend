@@ -6,6 +6,7 @@ const auth = (...roles) => {
     return async (req, res, next) => {
         try {
             const bearerToken = req.headers.authorization;
+            // console.log("inside auth");
 
             if (!bearerToken) {
                 return res.status(401).json({ message: "No token provided" });
