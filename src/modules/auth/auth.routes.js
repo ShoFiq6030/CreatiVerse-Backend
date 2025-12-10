@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const auth = require("../../middlewares/auth");
-const { registerUser, loginUser,logoutUser, verifyEmail } = require("./auth.controller");
+const { registerUser, loginUser, logoutUser, verifyEmail } = require("./auth.controller");
 
 // Register route
 router.post("/register", registerUser);
@@ -12,6 +12,6 @@ router.post("/login", loginUser);
 router.post("/logout", auth(), logoutUser);
 
 // // Email verification route
-// router.get("/verify-email", verifyEmail);
+router.post("/verify-email/:email", verifyEmail);
 
 module.exports = router;

@@ -44,13 +44,13 @@ const userSchema = new mongoose.Schema(
             select: false,
         },
         emailVerifyCode: {
-            type: String,
+            type: Number,
             select: false,
         },
 
     },
     {
-        timestamps: true, 
+        timestamps: true,
         versionKey: false,
     }
 );

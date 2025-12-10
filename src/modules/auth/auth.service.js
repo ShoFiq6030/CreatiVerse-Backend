@@ -86,10 +86,29 @@ const loginService = async ({ email, password }) => {
     return { user: userObj, accessToken, refreshToken };
 }
 
+const verifyEmailService = async ({ email, verifyCode }) => {
+
+    const user = await User.findOne({ email }).select("+emailVerifyCode");
+    if (!user) {
+        throw new Error(`user not found with this email:${email}`);
+    }
+    if (user.isVerified) {
+        throw new Error("This email already verified. Please login!")
+    }
+
+    if (verifyCode !== user.emailVerifyCode) {
+        throw new Error("Invalid verification code");
+    }
+    user.isVerified = true;
+    user.emailVerifyCode = null;
+    await user.save();
+    return true
+}
 
 
 
 module.exports = {
     registerService,
-    loginService
+    loginService,
+    verifyEmailService
 };
