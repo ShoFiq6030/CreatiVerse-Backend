@@ -1,4 +1,5 @@
 const Contest = require("./contest.model")
+const Submission = require("../submissions/submission.model")
 
 
 const createContestService = async (user, payload) => {
@@ -134,6 +135,44 @@ const getPopularContestsService = async () => {
 
 }
 
+const declareWinnerService = async (contestId, userId, submissionId) => {
+
+    // Check if contest exists
+    const contest = await Contest.findById(contestId);
+    if (!contest) {
+        throw new Error("Contest not found");
+    }
+
+    // Check if submission exists
+    const submission = await Submission.findById(submissionId);
+    if (!submission) {
+        throw new Error("Submission not found");
+    }
+
+    // Check if submission belongs to contest
+    if (submission.contestId.toString() !== contestId) {
+        throw new Error("This submission does not belong to this contest");
+    }
+
+    // Check if submission belongs to the selected user
+    if (submission.userId.toString() !== userId) {
+        throw new Error("Selected user did not submit this submission");
+    }
+
+    // Check if winner already exists
+    if (contest.winner && contest.winner.user) {
+        throw new Error("Winner already declared for this contest");
+    }
+
+    const result = await Contest.findByIdAndUpdate(contestId, {
+        winner: {
+            user: userId,
+            submissionId
+        }
+
+    }, { new: true })
+    return result
+}
 
 module.exports = {
     createContestService,
@@ -141,5 +180,5 @@ module.exports = {
     getContestService,
     updateContestService,
     deleteContestService,
-    getPopularContestsService
+    getPopularContestsService, declareWinnerService
 }

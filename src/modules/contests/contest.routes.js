@@ -1,5 +1,5 @@
 const auth = require("../../middlewares/auth")
-const { createContest, getContests, getContestById,updateContestById,deleteContestById,getPopularContests } = require("./contest.controller")
+const { createContest, getContests, getContestById, updateContestById, deleteContestById, getPopularContests, declareWinner } = require("./contest.controller")
 const router = require("express").Router()
 
 
@@ -10,6 +10,7 @@ router.get("/get-popular-contests", getPopularContests)
 router.get("/get-contests-auth", auth("admin", "creator", "user"), getContests)
 router.get("/get-contest/:contestId", auth(), getContestById)
 router.patch("/update-contest/:contestId", auth("admin", "creator"), updateContestById)
+router.patch("/declare-winner/:contestId/:userId/:submissionId", auth("admin", "creator"), declareWinner)
 router.delete("/delete-contest/:contestId", auth("admin", "creator"), deleteContestById)
 
 

@@ -1,4 +1,4 @@
-const { createContestService, getContestsService, getContestService, updateContestService, deleteContestService, getPopularContestsService } = require("./contest.service")
+const { createContestService, getContestsService, getContestService, updateContestService, deleteContestService, getPopularContestsService, declareWinnerService } = require("./contest.service")
 
 
 const createContest = async (req, res) => {
@@ -175,6 +175,26 @@ const getPopularContests = async (req, res) => {
 
 }
 
+const declareWinner = async (req, res) => {
+    try {
+        const { contestId, userId, submissionId } = req.params
+        const result = await declareWinnerService(contestId, userId, submissionId)
+        res.status(200).json({
+            success: true,
+            message: "Winner declare successfully"
+        })
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+
+
+}
+
 
 
 module.exports = {
@@ -183,6 +203,6 @@ module.exports = {
     getContestById,
     updateContestById,
     deleteContestById,
-    getPopularContests
+    getPopularContests, declareWinner
 }
 
