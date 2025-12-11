@@ -1,4 +1,4 @@
-const { createContestService, getContestsService, getContestService, updateContestService, deleteContestService } = require("./contest.service")
+const { createContestService, getContestsService, getContestService, updateContestService, deleteContestService, getPopularContestsService } = require("./contest.service")
 
 
 const createContest = async (req, res) => {
@@ -30,16 +30,10 @@ const createContest = async (req, res) => {
 const getContests = async (req, res) => {
 
     try {
+        let user = req.user || { role: "user" };
+        const { search, type, sort, page, limit } = req.query;
 
-        let user = req.user
-
-        if (!user) {
-            user = {
-                role: "user"
-            }
-        }
-
-        const result = await getContestsService(user)
+        const result = await getContestsService(user, search, type, sort, page, limit)
 
         res.status(200).json({
             success: true,
@@ -156,7 +150,30 @@ const deleteContestById = async (req, res) => {
     }
 
 }
-   
+
+
+const getPopularContests = async (req, res) => {
+
+    try {
+        const result = await getPopularContestsService()
+        res.status(200).json({
+            success: true,
+            message: "data fetched successfully",
+            data: result
+        })
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+
+
+
+
+}
 
 
 
@@ -165,6 +182,7 @@ module.exports = {
     getContests,
     getContestById,
     updateContestById,
-    deleteContestById
+    deleteContestById,
+    getPopularContests
 }
 

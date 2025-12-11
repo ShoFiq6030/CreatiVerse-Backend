@@ -26,7 +26,8 @@ const createContestService = async (user, payload) => {
 
 }
 
-const getContestsService = async (user) => {
+const getContestsService = async (user, search, type, sort, page = 1,
+    limit = 10) => {
 
     let query
     if (user.role === "admin") {
@@ -39,9 +40,40 @@ const getContestsService = async (user) => {
     }
 
 
-    const result = await Contest.find(query)
+    if (search) {
+        query.name = { $regex: search, $options: "i" };
+    }
+    if (type && type !== "All") {
+        query.contestType = type;
+    }
 
-    return result
+    // Sorting Logic
+
+    let sortQuery = {};
+
+    if (sort === "newest") sortQuery.createdAt = -1;
+    if (sort === "oldest") sortQuery.createdAt = 1;
+    if (sort === "deadline") sortQuery.deadline = 1;
+    if (sort === "prize") sortQuery.prizeMoney = -1;
+    if (sort === "participants") sortQuery.participantsCount = -1;
+
+
+    //  Pagination Logic
+    const skip = (page - 1) * limit;
+
+    const contests = await Contest.find(query)
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(Number(limit));
+
+    const total = await Contest.countDocuments(query);
+
+    return {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        contests
+    };
 
 }
 
@@ -96,10 +128,18 @@ const deleteContestService = async (contestId, user) => {
 
 }
 
+const getPopularContestsService = async () => {
+    const result = await Contest.find({ status: "approve" }).sort({ participantsCount: -1 }).limit(6)
+    return result
+
+}
+
+
 module.exports = {
     createContestService,
     getContestsService,
     getContestService,
     updateContestService,
-    deleteContestService
+    deleteContestService,
+    getPopularContestsService
 }
