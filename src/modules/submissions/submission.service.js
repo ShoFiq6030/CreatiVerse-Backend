@@ -32,6 +32,14 @@ const submitContestSubmissionService = async (contestId, payload, userId) => {
 
 }
 
+const getAllSubmissionByContestIdService = async (contestId) => {
+    // console.log("inside service");
+    const result = await Submission.find({ contestId })
+    // console.log(result);
+    return result
+}
+
 module.exports = {
-    submitContestSubmissionService
+    submitContestSubmissionService,
+    getAllSubmissionByContestIdService
 }

@@ -1,11 +1,12 @@
 const auth = require("../../middlewares/auth")
 const router = require("express").Router()
-const { submitContestSubmission } = require("./submission.controller")
+const { submitContestSubmission,getAllSubmissionByContestId } = require("./submission.controller")
 
 
 
 
 router.post("/:contestId", auth("user"), submitContestSubmission)
+router.get("/:contestId", getAllSubmissionByContestId)
 
 
 
