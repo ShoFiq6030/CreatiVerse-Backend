@@ -1,4 +1,4 @@
-const Contest = require("../users/contest.model")
+const Contest = require("./contest.model")
 
 
 const createContestService = async (user, payload) => {
