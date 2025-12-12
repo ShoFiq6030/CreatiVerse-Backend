@@ -19,6 +19,7 @@ app.get('/', (req, res) => {
 app.use("/api/v1/auth", require("./modules/auth/auth.routes"));
 app.use("/api/v1/contest", require("./modules/contests/contest.routes"));
 app.use("/api/v1/submissions", require("./modules/submissions/submission.routes"));
+app.use("/api/v1/users", require("./modules/users/user.routes"))
 
 
 // 404 
