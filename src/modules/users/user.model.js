@@ -35,6 +35,16 @@ const userSchema = new mongoose.Schema(
             default: "",
         },
 
+        // Social login ids
+        googleId: {
+            type: String,
+            default: null,
+        },
+        provider: {
+            type: String,
+            enum: ["local", "google"],
+            default: "local",
+        },
         isVerified: {
             type: Boolean,
             default: false,

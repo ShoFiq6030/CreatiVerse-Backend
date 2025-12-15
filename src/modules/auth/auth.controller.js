@@ -1,5 +1,9 @@
 const User = require("../users/user.model");
 const { registerService, loginService, verifyEmailService } = require("./auth.service");
+// const { googleOAuthLogin } = require("./auth.service");
+const config = require("../../config/index");
+const admin = require("../../firebase/firebaseAdmin");
+const { generateAccessToken, generateRefreshToken } = require("../../utils/jwtToken");
 
 const registerUser = async (req, res) => {
     try {
@@ -85,8 +89,7 @@ const verifyEmail = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 }
-
-const getLoginUserWithToken = async (req, res) => {
+ const getLoginUserWithToken = async (req, res) => {
     try {
         const userId = req.user.id
 
@@ -111,10 +114,60 @@ const getLoginUserWithToken = async (req, res) => {
 
 }
 
+const googleLogin = async (req, res) => {
+    const { firebaseToken } = req.body;
+
+    try {
+        // Verify Firebase ID token
+
+        const decoded = await admin.auth().verifyIdToken(firebaseToken);
+
+        // Check if user exists
+        let user = await User.findOne({ email: decoded.email });
+
+        // If not, create new user
+        if (!user) {
+            const password = Math.random().toString(36).slice(-8);
+
+            // console.log(password);
+            const newUser = {
+                name: decoded.name || decoded.email.split("@")[0],
+                email: decoded.email,
+                profileImage: decoded.picture,
+                googleUid: decoded.uid,
+                provider: "google",
+                password
+
+            };
+
+            const result = await User.insertOne(newUser);
+
+            user = { _id: result.insertedId, ...newUser };
+        }
+
+        // Create your own JWT token
+        const accessToken = generateAccessToken(user);
+
+
+
+        res.status(200).json({ accessToken, user });
+    } catch (err) {
+        console.error("Google login error:", err);
+        res.status(401).json({ message: "Invalid Google token", error: err.message });
+    }
+};
+
+
+
+
 module.exports = {
     registerUser,
     loginUser,
     logoutUser,
     verifyEmail,
-    getLoginUserWithToken
+    getLoginUserWithToken,
+    googleLogin
+
+
 };
+

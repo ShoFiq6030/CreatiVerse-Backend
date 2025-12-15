@@ -9,6 +9,9 @@ const fs = require("fs");
 
 
 
+
+
+
 const registerService = async ({ ...payload }) => {
     const { name, email, password, role, profileImage } = payload;
 
@@ -107,8 +110,10 @@ const verifyEmailService = async ({ email, verifyCode }) => {
 
 
 
+
 module.exports = {
     registerService,
     loginService,
-    verifyEmailService
+    verifyEmailService,
+   
 };
