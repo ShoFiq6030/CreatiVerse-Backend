@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db")
+const mongoose = require('mongoose');
 
 
 const app = express();
@@ -14,12 +15,33 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Ensure DB connection for serverless environments (Vercel)
+const ensureDbConnected = async (req, res, next) => {
+    try {
+        if (mongoose.connection.readyState !== 1) {
+            await connectDB();
+        }
+        return next();
+    } catch (err) {
+        console.error('DB connection error on request:', err.message || err);
+        return res.status(500).json({ success: false, message: 'Database connection error' });
+    }
+};
+
+app.use(ensureDbConnected);
+
 
 
 // root route
 app.get('/', (req, res) => {
     res.status(200).send('Welcome to CreatiVerse API')
 })
+
+// health check (useful for deployments)
+app.get('/health', (req, res) => {
+    const state = mongoose.connection.readyState; // 0 = disconnected, 1 = connected
+    res.status(200).json({ success: true, dbState: state });
+});
 
 app.use("/api/v1/auth", require("./modules/auth/auth.routes"));
 app.use("/api/v1/contest", require("./modules/contests/contest.routes"));
