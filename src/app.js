@@ -7,15 +7,14 @@ const app = express();
 
 app.use(cors({
     origin: [
-      "http://localhost:5173",
-    //   "https://creati-verse.vercel.app" // frontend live URL
+        "http://localhost:5173",
+        //   "https://creati-verse.vercel.app" // frontend live URL
     ],
     credentials: true
-  }));
+}));
 app.use(express.json());
 
-// connect to database
-connectDB()
+
 
 // root route
 app.get('/', (req, res) => {
