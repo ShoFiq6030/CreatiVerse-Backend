@@ -42,10 +42,10 @@ const getContestsService = async (user, search, type, sort, page = 1,
 
 
     if (search) {
-        query.name = { $regex: search, $options: "i" };
+        query.contestName = { $regex: search, $options: "i" };
     }
-    if (type && type !== "All") {
-        query.contestType = type;
+    if (type && type !== "all") {
+        query.contestType = { $regex: type, $options: "i" };
     }
 
     // Sorting Logic
@@ -54,11 +54,13 @@ const getContestsService = async (user, search, type, sort, page = 1,
 
     if (sort === "newest") sortQuery.createdAt = -1;
     if (sort === "oldest") sortQuery.createdAt = 1;
-    if (sort === "deadline") sortQuery.deadline = 1;
-    if (sort === "prize") sortQuery.prizeMoney = -1;
+    if (sort === "deadline-asc") sortQuery.deadline = 1;
+    if (sort === "deadline-desc") sortQuery.deadline = -1;
+    if (sort === "prize-desc") sortQuery.price = -1;
+    if (sort === "prize-asc") sortQuery.price = 1;
     if (sort === "participants") sortQuery.participantsCount = -1;
 
-
+    console.log(query);
     //  Pagination Logic
     const skip = (page - 1) * limit;
 
