@@ -1,5 +1,8 @@
 const Contest = require("./contest.model")
+const User = require("../users/user.model")
 const Submission = require("../submissions/submission.model")
+const { default: mongoose } = require("mongoose")
+
 
 
 const createContestService = async (user, payload) => {
@@ -173,7 +176,7 @@ const declareWinnerService = async (contestId, userId, submissionId) => {
         winner: {
             user: userId,
             submissionId,
-            deadline:  new Date(),
+            deadline: new Date(),
         },
         status: "completed"
 
@@ -181,11 +184,108 @@ const declareWinnerService = async (contestId, userId, submissionId) => {
     return result
 }
 
+const getLeaderboardService = async () => {
+    // 1️⃣ Get completed contests
+    const contests = await Contest.find({ status: "completed" })
+        .select("_id winner prizeMoney")
+        .lean();
+
+    const contestMap = {};
+    const completedContestIds = [];
+
+    contests.forEach((c) => {
+        contestMap[c._id.toString()] = c;
+        completedContestIds.push(c._id);
+    });
+
+    // 2️⃣ Get submissions only for completed contests
+    const submissions = await Submission.find({
+        contestId: { $in: completedContestIds },
+    })
+        .select("userId contestId")
+        .lean();
+
+    const leaderboardMap = {};
+
+    const normalizeId = (value) => {
+        if (!value) return null;
+        if (typeof value === "object" && value._id) return value._id.toString();
+        if (mongoose.isValidObjectId(value)) return value.toString();
+        return null;
+    };
+
+    // 3️⃣ Count participation from submissions
+    submissions.forEach((sub) => {
+        const userId = normalizeId(sub.userId);
+        const contestId = normalizeId(sub.contestId);
+        if (!userId || !contestId) return;
+
+        if (!leaderboardMap[userId]) {
+            leaderboardMap[userId] = {
+                userId,
+                winCount: 0,
+                participantCount: 0,
+                totalPrizeEarning: 0,
+            };
+        }
+
+        leaderboardMap[userId].participantCount += 1;
+    });
+
+    // 4️⃣ Count wins & earnings
+    contests.forEach((contest) => {
+        const winnerId = normalizeId(contest.winner.user);
+        if (!winnerId) return;
+
+        if (!leaderboardMap[winnerId]) {
+            leaderboardMap[winnerId] = {
+                userId: winnerId,
+                winCount: 0,
+                participantCount: 0,
+                totalPrizeEarning: 0,
+            };
+        }
+
+        leaderboardMap[winnerId].winCount += 1;
+        leaderboardMap[winnerId].totalPrizeEarning += contest.prizeMoney || 0;
+    });
+
+    // 5️⃣ Attach user info
+    const userObjectIds = Object.keys(leaderboardMap)
+        .filter((id) => mongoose.isValidObjectId(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+
+    const users = await User.find({ _id: { $in: userObjectIds } })
+        .select("name email profileImage role")
+        .lean();
+
+    const userMap = {};
+    users.forEach((u) => {
+        userMap[u._id.toString()] = u;
+    });
+
+    // 6️⃣ Final leaderboard array
+    return Object.values(leaderboardMap)
+        .map((entry) => ({
+            user: userMap[entry.userId] || null,
+            winCount: entry.winCount,
+            participantCount: entry.participantCount,
+            totalPrizeEarning: entry.totalPrizeEarning,
+        }))
+        .sort((a, b) => {
+            if (b.winCount !== a.winCount) return b.winCount - a.winCount;
+            if (b.totalPrizeEarning !== a.totalPrizeEarning)
+                return b.totalPrizeEarning - a.totalPrizeEarning;
+            return b.participantCount - a.participantCount;
+        });
+};
+
+
 module.exports = {
     createContestService,
     getContestsService,
     getContestService,
     updateContestService,
     deleteContestService,
-    getPopularContestsService, declareWinnerService
+    getPopularContestsService, declareWinnerService, getLeaderboardService
 }

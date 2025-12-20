@@ -1,5 +1,10 @@
-const { createContestService, getContestsService, getContestService, updateContestService, deleteContestService, getPopularContestsService, declareWinnerService } = require("./contest.service")
+const { createContestService, getContestsService, getContestService, updateContestService, deleteContestService, getPopularContestsService, declareWinnerService,getLeaderboardService } = require("./contest.service")
 const Contest = require("./contest.model")
+const Submission = require("../submissions/submission.model")
+const User = require("../users/user.model")
+const { default: mongoose } = require("mongoose")
+
+
 
 
 const createContest = async (req, res) => {
@@ -217,6 +222,28 @@ const getContestWinners = async (req, res) => {
     }
 }
 
+// Leaderboard 
+const getLeaderboard = async (req, res) => {
+  try {
+    const leaderboard = await getLeaderboardService();
+
+    res.status(200).json({
+      success: true,
+      data: leaderboard,
+    });
+  } catch (error) {
+    console.error("Leaderboard error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to load leaderboard",
+    });
+  }
+};
+
+
+
+
 
 
 module.exports = {
@@ -225,6 +252,12 @@ module.exports = {
     getContestById,
     updateContestById,
     deleteContestById,
-    getPopularContests, declareWinner, getContestWinners
+    getPopularContests, 
+    declareWinner, 
+    getContestWinners,
+    // getLeaderboard,
+    // getUserLeaderboard,
+    // getTopPerformers,
+    // getLeaderboardStats,
+    getLeaderboard
 }
-
