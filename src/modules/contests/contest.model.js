@@ -13,7 +13,7 @@ const contestSchema = new mongoose.Schema(
             type: String,
             required: true,
             require: true,
-            default:""
+            default: ""
         },
 
         description: {
@@ -42,22 +42,22 @@ const contestSchema = new mongoose.Schema(
             type: String,
             required: true,
             enum: [
-                "Image Design",
-                "Logo Design",
-                "Photography",
-                "Article Writing",
-                "Story Writing",
-                "Poetry Writing",
-                "Business Idea",
-                "Startup Pitch",
-                "Gaming Review",
-                "Coding Challenge",
-                "Web Design",
-                "Video Editing",
-                "Meme Creation",
-                "Marketing Strategy",
-                "Innovation Challenge",
-                "Other",
+                "image-design",
+                "logo-design",
+                "photography",
+                "article-writing",
+                "story-writing",
+                "poetry-writing",
+                "business-idea",
+                "startup-pitch",
+                "gaming-review",
+                "coding-challenge",
+                "web-design",
+                "video-editing",
+                "meme-creation",
+                "marketing-strategy",
+                "innovation-challenge",
+                "other",
             ],
         },
 
@@ -68,7 +68,7 @@ const contestSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            enum: ["pending", "approved", "rejected"],
+            enum: ["pending", "approved", "rejected", "completed"],
             default: "pending",
         },
 

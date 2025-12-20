@@ -89,7 +89,7 @@ const verifyEmail = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 }
- const getLoginUserWithToken = async (req, res) => {
+const getLoginUserWithToken = async (req, res) => {
     try {
         const userId = req.user.id
 
@@ -136,6 +136,7 @@ const googleLogin = async (req, res) => {
                 profileImage: decoded.picture,
                 googleUid: decoded.uid,
                 provider: "google",
+                isVerified: true,
                 password
 
             };
@@ -150,7 +151,7 @@ const googleLogin = async (req, res) => {
 
 
 
-        res.status(200).json({ accessToken, user });
+        res.status(200).json({ success: true, message: "Google login Successfully", accessToken, user });
     } catch (err) {
         console.error("Google login error:", err);
         res.status(401).json({ message: "Invalid Google token", error: err.message });

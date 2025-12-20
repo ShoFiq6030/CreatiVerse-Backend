@@ -27,8 +27,8 @@ const createContestService = async (user, payload) => {
 
 }
 
-const getContestsService = async (user, search, type, sort, page = 1,
-    limit = 10) => {
+const getContestsService = async (user, search, type, sort, page,
+    limit) => {
 
     let query
     if (user.role === "admin") {
@@ -37,7 +37,7 @@ const getContestsService = async (user, search, type, sort, page = 1,
     else if (user.role === "creator") {
         query = { creator: user.id }
     } else {
-        query = { status: "approve" }
+        query = { status: "approved" }
     }
 
 
@@ -63,6 +63,7 @@ const getContestsService = async (user, search, type, sort, page = 1,
     console.log(query);
     //  Pagination Logic
     const skip = (page - 1) * limit;
+    console.log(query);
 
     const contests = await Contest.find(query)
         .sort(sortQuery)
@@ -96,6 +97,8 @@ const updateContestService = async (contestId, payload, user) => {
     if (user.role !== "admin") {
         if (contest.status === "approve") {
             throw new Error("contest can't be update when approve")
+        } else {
+            throw new Error("only admin can update contest")
         }
     }
 
@@ -132,7 +135,7 @@ const deleteContestService = async (contestId, user) => {
 }
 
 const getPopularContestsService = async () => {
-    const result = await Contest.find({ status: "approve" }).sort({ participantsCount: -1 }).limit(6)
+    const result = await Contest.find({ status: "approved" }).sort({ participantsCount: -1 }).limit(6)
     return result
 
 }
@@ -169,8 +172,10 @@ const declareWinnerService = async (contestId, userId, submissionId) => {
     const result = await Contest.findByIdAndUpdate(contestId, {
         winner: {
             user: userId,
-            submissionId
-        }
+            submissionId,
+            deadline:  new Date(),
+        },
+        status: "completed"
 
     }, { new: true })
     return result

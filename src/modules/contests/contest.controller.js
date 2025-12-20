@@ -1,11 +1,12 @@
 const { createContestService, getContestsService, getContestService, updateContestService, deleteContestService, getPopularContestsService, declareWinnerService } = require("./contest.service")
+const Contest = require("./contest.model")
 
 
 const createContest = async (req, res) => {
 
     try {
         const user = req.user
-        console.log(user);
+        // console.log(user);
         const payload = req.body
         const result = await createContestService(user, payload)
         res.status(201).json({
@@ -15,10 +16,10 @@ const createContest = async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error.massage);
+        console.log(error.message);
         res.status(500).json({
             success: false,
-            message: error.massage
+            message: error.message
         })
     }
 
@@ -196,6 +197,27 @@ const declareWinner = async (req, res) => {
 }
 
 
+const getContestWinners = async (req, res) => {
+    try {
+        const result = await Contest.find({ "winner.user": { $ne: null } })
+            .populate("winner.user", "name email profileImage")
+            .populate("winner.submissionId")
+            .exec();
+        res.status(200).json({
+            success: true,
+            message: "Winners fetched successfully",
+            data: result
+        });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+
 
 module.exports = {
     createContest,
@@ -203,6 +225,6 @@ module.exports = {
     getContestById,
     updateContestById,
     deleteContestById,
-    getPopularContests, declareWinner
+    getPopularContests, declareWinner, getContestWinners
 }
 
