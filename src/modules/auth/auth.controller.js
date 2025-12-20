@@ -39,6 +39,9 @@ const loginUser = async (req, res) => {
         }
         // login service
         const result = await loginService({ email, password });
+        if (result.error) {
+            return res.status(400).json({ success: false, message: result.error });
+        }
         // Send refresh token in httpOnly cookie
         res.cookie("refreshToken", result.refreshToken, {
             httpOnly: true,

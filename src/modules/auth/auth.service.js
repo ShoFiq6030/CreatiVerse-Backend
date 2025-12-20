@@ -65,14 +65,17 @@ const loginService = async ({ email, password }) => {
     // Find user by email
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
-        throw new Error("Invalid email or password");
+      return  { error: "Invalid email" }
+    }
+    if (!user.isVerified) {
+        return { error: "Email not verified. Please verify your email first." }
     }
     // console.log(user);
     // console.log(password, user.password);
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-        throw new Error("Invalid email or password");
+        return {error:"Invalid email or password"}
     }
     const userObj = user.toObject();
     delete userObj.password;

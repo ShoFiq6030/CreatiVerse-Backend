@@ -1,5 +1,7 @@
 const User = require('./user.model');
 const bcrypt = require("bcryptjs");
+const Contest = require('../contests/contest.model');
+const Submission = require('../submissions/submission.model');
 
 const getUserProfileService = async (id, user) => {
     try {
@@ -95,7 +97,36 @@ const updateUserProfileService = async (id, currentUser, payload) => {
     }
 };
 
+const getAllUsersService = async () => {
+    try {
+        const users = await User.find()
+            .select("-password -refreshToken +emailVerifyCode")
+            .sort({ createdAt: -1 });
+
+        return users;
+    } catch (error) {
+        return { error: error.message };
+    }
+};
+const deleteUserService = async (id) => {
+    try {
+
+        const deletedUser = await User.findByIdAndDelete(id);
+
+        if (!deletedUser) {
+            return { error: "User not found or already deleted" };
+
+        }
+        const deleteUserContest = await Contest.deleteMany({ creator: id });
+        const deleteUserSubmissions = await Submission.deleteMany({ userId: id });
+        return deletedUser;
+    } catch (error) {
+        return { error: error.message };
+    }
+};
 
 
 
-module.exports = { getUserProfileService, updateUserProfileService };
+
+
+module.exports = { getUserProfileService, updateUserProfileService, getAllUsersService, deleteUserService };
