@@ -13,6 +13,10 @@ const config = {
     google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
     google_redirect_url: process.env.GOOGLE_REDIRECT_URL || process.env.FRONTEND_URL || "http://localhost:5173",
     frontend_url: process.env.FRONTEND_URL || "http://localhost:5173",
+    ssl_commerz_store_id: process.env.SSL_COMMERZ_STORE_ID,
+    ssl_commerz_store_password: process.env.SSL_COMMERZ_STORE_PASSWD,
+    backend_url: process.env.BACKEND_URL ,
+    frontend_url: process.env.FRONTEND_URL ,
 };
 
 module.exports = config;

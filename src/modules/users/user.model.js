@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
         },
         bio: {
             type: String,
-            default: "",
+            default: "I am a Digital Marketing Specialist with 5+ years in e-commerce. Known for driving online growth through data-driven campaigns, she helps small businesses expand their digital footprint.",
         },
 
         // Social login ids
