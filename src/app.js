@@ -9,7 +9,7 @@ const app = express();
 app.use(cors({
     origin: [
         "http://localhost:5173",
-        //   "https://creati-verse.vercel.app" // frontend live URL
+        "https://creati-verse-frontend.vercel.app/" // frontend live URL
     ],
     credentials: true
 }));
