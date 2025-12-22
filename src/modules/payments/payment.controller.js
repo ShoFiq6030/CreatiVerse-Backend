@@ -107,9 +107,37 @@ const getPaymentInfoWithTransactionId = async (req, res) => {
     }
 };
 
+const failedPayment = async (req, res) => {
+    try {
+        const { tran_id, contestId } = req.params;
+        if (!tran_id) {
+            return res.status(400).json({
+                success: false,
+                message: "Transaction ID is required"
+            });
+        }
+        const payment = await Payment.findOneAndDelete(
+            { transactionId: tran_id }
+        )
+        if (!payment) {
+            return res.status(404).json({
+                success: false,
+                message: "Payment not found"
+            });
+        }
+        res.redirect(`${config.frontend_url}/payment-failed?tran_id=${tran_id}&contest_id=${contestId}`);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
 module.exports = {
     submissionPayment,
     updatePaymentStatus,
     getPaymentInfoByUserIdAndContestId,
-    getPaymentInfoWithTransactionId
+    getPaymentInfoWithTransactionId,
+    failedPayment
 };

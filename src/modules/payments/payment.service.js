@@ -25,7 +25,7 @@ const processPayment = async (contestId, user) => {
         currency: 'BDT',
         tran_id: tran_id, // use unique tran_id for each api call
         success_url: `${config.backend_url}/payments/update-status/${tran_id}`,
-        fail_url: 'http://localhost:3030/fail',
+        fail_url: `${config.backend_url}/payments/fail/${tran_id}/${contestId}`,
         cancel_url: 'http://localhost:3030/cancel',
         ipn_url: 'http://localhost:3030/ipn',
         shipping_method: 'online',

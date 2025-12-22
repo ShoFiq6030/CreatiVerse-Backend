@@ -1,4 +1,4 @@
-const { getUserProfileService, updateUserProfileService, getAllUsersService, deleteUserService } = require('./user.service');
+const { getUserProfileService, updateUserProfileService, getAllUsersService, deleteUserService, getUserContestParticipatedService,getUserContestWinService } = require('./user.service');
 
 const getUserProfile = async (req, res) => {
     try {
@@ -109,4 +109,53 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { getUserProfile, updateUserProfile, getAllUsers, deleteUser };
+const getUserContestParticipated = async (req, res) => {
+    try {
+        const user = req.user;
+        // console.log(user);
+        const { userId } = req.params;
+        if (user.id !== userId && user.role !== "admin") {
+            return res.status(401).json({ success: false, message: "Unauthorize" });
+        }
+        const result = await getUserContestParticipatedService(userId);
+        if (result.error) {
+            return res.status(400).json({ success: false, message: result.error });
+        }
+        res.status(200).json({
+            success: true,
+            message: 'User contest participated fetched successfully',
+            data: result
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const getUserContestWin = async (req, res) => {
+    try {
+        const user = req.user;
+        const { userId } = req.params;
+        if (user.id !== userId && user.role !== "admin") {
+            return res.status(401).json({ success: false, message: "Unauthorize" });
+        }
+        const result = await getUserContestWinService(userId);
+        if (result.error) {
+            return res.status(400).json({ success: false, message: result.error });
+        }
+        res.status(200).json({
+            success: true,
+            message: 'User contest win fetched successfully',   
+            data: result
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+
+module.exports = { getUserProfile, updateUserProfile, getAllUsers, deleteUser, getUserContestParticipated,getUserContestWin };

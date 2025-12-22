@@ -8,7 +8,7 @@ const submitContestSubmissionService = async (contestId, payload, userId) => {
     if (!contest) {
         throw new Error("contest not found")
     }
-    if (contest.status !== "approve") {
+    if (contest.status !== "approved") {
         throw new Error("This contest is not open for submission yet");
     }
     if (contest.deadline && new Date() > new Date(contest.deadline)) {
@@ -35,6 +35,8 @@ const submitContestSubmissionService = async (contestId, payload, userId) => {
 const getAllSubmissionByContestIdService = async (contestId) => {
     // console.log("inside service");
     const result = await Submission.find({ contestId })
+        .populate("userId", "name email profileImage").populate("contestId", "contestName description").sort({ createdAt: -1 });
+
     // console.log(result);
     return result
 }
