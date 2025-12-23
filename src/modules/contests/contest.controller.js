@@ -1,4 +1,4 @@
-const { createContestService, getContestsService, getContestService, updateContestService, deleteContestService, getPopularContestsService, declareWinnerService,getLeaderboardService } = require("./contest.service")
+const { createContestService, getContestsService, getContestService, updateContestService, deleteContestService, getPopularContestsService, declareWinnerService, getLeaderboardService } = require("./contest.service")
 const Contest = require("./contest.model")
 const Submission = require("../submissions/submission.model")
 const User = require("../users/user.model")
@@ -100,6 +100,13 @@ const updateContestById = async (req, res) => {
         const result = await updateContestService(contestId, payload, user)
         console.log(result);
 
+        if (result.error) {
+            res.status(400).json({
+                success: false,
+                message: "contest not found"
+            })
+        }
+
         if (!result) {
             res.status(400).json({
                 success: false,
@@ -132,18 +139,23 @@ const deleteContestById = async (req, res) => {
 
         const result = await deleteContestService(contestId, user)
         // console.log(result);
-
+        if (result.error) {
+            res.status(400).json({
+                success: false,
+                message: result.error
+            })
+        }
         if (!result) {
             res.status(400).json({
                 success: false,
                 message: "contest not found"
             })
         }
-
+        console.log(result);
         res.status(200).json({
             success: true,
             message: "contest delete successfully",
-            // data: result
+            data: result
         })
 
     } catch (error) {
@@ -224,21 +236,21 @@ const getContestWinners = async (req, res) => {
 
 // Leaderboard 
 const getLeaderboard = async (req, res) => {
-  try {
-    const leaderboard = await getLeaderboardService();
+    try {
+        const leaderboard = await getLeaderboardService();
 
-    res.status(200).json({
-      success: true,
-      data: leaderboard,
-    });
-  } catch (error) {
-    console.error("Leaderboard error:", error);
+        res.status(200).json({
+            success: true,
+            data: leaderboard,
+        });
+    } catch (error) {
+        console.error("Leaderboard error:", error);
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to load leaderboard",
-    });
-  }
+        res.status(500).json({
+            success: false,
+            message: "Failed to load leaderboard",
+        });
+    }
 };
 
 
@@ -252,8 +264,8 @@ module.exports = {
     getContestById,
     updateContestById,
     deleteContestById,
-    getPopularContests, 
-    declareWinner, 
+    getPopularContests,
+    declareWinner,
     getContestWinners,
     // getLeaderboard,
     // getUserLeaderboard,

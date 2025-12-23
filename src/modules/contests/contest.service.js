@@ -63,12 +63,13 @@ const getContestsService = async (user, search, type, sort, page,
     if (sort === "prize-asc") sortQuery.price = 1;
     if (sort === "participants") sortQuery.participantsCount = -1;
 
-    console.log(query);
+    // console.log(query);
     //  Pagination Logic
     const skip = (page - 1) * limit;
-    console.log(query);
+    // console.log(query);
 
     const contests = await Contest.find(query)
+        .populate("creator", "name email profileImage")
         .sort(sortQuery)
         .skip(skip)
         .limit(Number(limit));
@@ -86,7 +87,7 @@ const getContestsService = async (user, search, type, sort, page,
 
 const getContestService = async (contestId) => {
 
-    const contest = await Contest.findById(contestId)
+    const contest = await Contest.findById(contestId).populate("creator", "name email profileImage")
 
     return contest
 
@@ -95,13 +96,13 @@ const getContestService = async (contestId) => {
 const updateContestService = async (contestId, payload, user) => {
     const contest = await Contest.findById(contestId)
     if (!contest) {
-        throw new Error("contest not found")
+        return ({ error: "contest not found" })
     }
     if (user.role !== "admin") {
         if (contest.status === "approve") {
-            throw new Error("contest can't be update when approve")
+            return ({ error: "contest can't be update when approve" })
         } else {
-            throw new Error("only admin can update contest")
+            return ({ error: "only admin can update contest" })
         }
     }
 
@@ -119,26 +120,26 @@ const updateContestService = async (contestId, payload, user) => {
 
 const deleteContestService = async (contestId, user) => {
     const contest = await Contest.findById(contestId)
-    console.log(user.role);
-    console.log(contest);
+    // console.log(user.role);
+    // console.log(contest);
 
 
     if (!contest) {
-        return
+        return ({ error: "contest not found" })
     }
     if (user.role !== "admin") {
         if (contest.status === "approve") {
-            throw new Error("contest can't be delete when it's approve")
+            return ({ error: "contest can't be delete when it's approve" })
         }
     }
-    const result = Contest.findOneAndDelete(contestId)
+    const result = Contest.findByIdAndDelete(contestId)
 
     return result
 
 }
 
 const getPopularContestsService = async () => {
-    const result = await Contest.find({ status: "approved" }).sort({ participantsCount: -1 }).limit(6)
+    const result = await Contest.find({ status: "approved" }).populate("creator", "name email profileImage").sort({ participantsCount: -1 }).limit(6)
     return result
 
 }

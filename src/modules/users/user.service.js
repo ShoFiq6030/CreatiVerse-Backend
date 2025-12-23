@@ -141,9 +141,9 @@ const getUserContestParticipatedService = async (userId) => {
                 }
             },
             { $unwind: '$contestDetails' },
-            {
-                $match: { "contestDetails.status": { $ne: "completed" } }
-            },
+            // {
+            //     $match: { "contestDetails.status": { $ne: "completed" } }
+            // },
             // --- FIXED PAYMENT LOOKUP ---
             {
                 $lookup: {

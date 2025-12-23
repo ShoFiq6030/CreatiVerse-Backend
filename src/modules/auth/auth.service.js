@@ -67,9 +67,9 @@ const loginService = async ({ email, password }) => {
     if (!user) {
       return  { error: "Invalid email" }
     }
-    if (!user.isVerified) {
-        return { error: "Email not verified. Please verify your email first." }
-    }
+    // if (!user.isVerified) {
+    //     return { error: "Email not verified. Please verify your email first." }
+    // }
     // console.log(user);
     // console.log(password, user.password);
     // Compare password
