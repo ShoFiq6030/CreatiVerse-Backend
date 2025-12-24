@@ -26,7 +26,7 @@ const registerService = async ({ ...payload }) => {
 
     //email verify token 6 digits
     const emailVerifyCode = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(emailVerifyCode);
+    // console.log(emailVerifyCode);
 
     // Load the HTML file
     const filePath = path.join(process.cwd(), "src/emails", "verification.html");

@@ -7,7 +7,7 @@ const submissionPayment = async (req, res) => {
     const user = req.user
 
     try {
-        // Simulate payment processing logic
+        
         const paymentResult = await processPayment(contestId, user);
 
         if (!paymentResult.success) {
@@ -64,10 +64,19 @@ const getPaymentInfoByUserIdAndContestId = async (req, res) => {
         const { userId, contestId } = req.query;
         console.log(userId, contestId);
         const payment = await Payment.findOne({ userId, contestId });
+
+
         if (!payment) {
             return res.status(404).json({
                 success: false,
                 message: "No payment information found for the given user and contest"
+            });
+        }
+
+        if (payment.status !== "success") {
+            return res.status(404).json({
+                success: false,
+                message: "Payment status failed...Please try again"
             });
         }
 
@@ -76,6 +85,7 @@ const getPaymentInfoByUserIdAndContestId = async (req, res) => {
             message: "Payment information retrieved successfully",
             data: payment
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,

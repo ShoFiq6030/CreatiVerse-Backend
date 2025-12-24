@@ -4,8 +4,8 @@ const getUserProfile = async (req, res) => {
     try {
         const user = req.user
         const { id } = req.params;
-        console.log(id);
-        console.log(user.id);
+        // console.log(id);
+        // console.log(user.id);
 
         if (user.id !== id && user.role !== "admin") {
             return res.status(401).json({ success: false, message: "Unauthorize" });

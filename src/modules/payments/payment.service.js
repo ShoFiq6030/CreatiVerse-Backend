@@ -18,7 +18,7 @@ const processPayment = async (contestId, user) => {
         });
     }
     const tran_id = new ObjectId().toString();
-    console.log(user);
+    // console.log(user);
 
     const data = {
         total_amount: contest.price,
@@ -26,7 +26,7 @@ const processPayment = async (contestId, user) => {
         tran_id: tran_id, // use unique tran_id for each api call
         success_url: `${config.backend_url}/payments/update-status/${tran_id}`,
         fail_url: `${config.backend_url}/payments/fail/${tran_id}/${contestId}`,
-        cancel_url: 'http://localhost:3030/cancel',
+        cancel_url: `${config.backend_url}/payments/fail/${tran_id}/${contestId}`,
         ipn_url: 'http://localhost:3030/ipn',
         shipping_method: 'online',
         product_name: contest.contestName,
@@ -54,6 +54,13 @@ const processPayment = async (contestId, user) => {
 
     try {
         const apiResponse = await sslcz.init(data);
+        
+        await Payment.findOneAndDelete({
+            userId: user.id,
+            contestId: contest._id,
+        })
+
+
         await Payment.insertOne({
             userId: user.id,
             contestId: contest._id,
@@ -61,6 +68,8 @@ const processPayment = async (contestId, user) => {
             status: 'pending',
             transactionId: tran_id
         });
+
+
         return { success: true, url: apiResponse.GatewayPageURL, tran_id };
     } catch (err) {
         return { success: false, message: err.message || 'payment init failed' };
